@@ -1,58 +1,54 @@
-// script.js
+// chatbot.js
 
 const chatInput = document.querySelector('.chat-input textarea');
 const sendChatBtn = document.querySelector('.chat-input button');
 const chatbox = document.querySelector(".chatbox");
 
 let userMessage;
-const API_KEY = "AIzaSyDtY2Fiau6w_XwexXlo-Lz-SKox_b0fmWU";  // Thay YOUR_API_KEY bằng khóa API của bạn
+const API_KEY = "AIzaSyD6DHBC0MtBhLpvH8gW4sQvC-3dsmn9MPA"; // Thay bằng API key Gemini của bạn
 
-// Tạo thẻ li cho mỗi tin nhắn
+// Hàm tạo thẻ li cho mỗi tin nhắn
 const createChatLi = (message, className) => {
     const chatLi = document.createElement("li");
     chatLi.classList.add("chat", className);
-    let chatContent = `<p>${message}</p>`;
-    chatLi.innerHTML = chatContent;
+    chatLi.innerHTML = `<p>${message}</p>`;
     return chatLi;
-}
+};
 
-// Gửi tin nhắn và nhận phản hồi từ Gemini API
+// Hàm gửi yêu cầu và nhận phản hồi từ Gemini API
 const generateResponse = (incomingChatLi) => {
-    const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY;
-    const messageElement = incomingChatLi.querySelector("p");
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
     const requestOptions = {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${API_KEY}`  // Nếu cần authorization token
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            "model": "gemini-1.5-flash",  // Thay đổi model nếu cần thiết
-            "input": {
-                "messages": [
-                    {
-                        role: "user",
-                        content: userMessage
-                    }
-                ]
-            }
+            contents: [
+                {
+                    parts: [{ text: userMessage }]
+                }
+            ]
         })
     };
 
     fetch(API_URL, requestOptions)
-        .then(res => {
-            if (!res.ok) {
-                throw new Error("Network response was not ok");
-            }
-            return res.json();
-        })
+        .then(res => res.json())
         .then(data => {
-            messageElement.textContent = data.choices[0].message.content;  // Điều chỉnh theo dữ liệu trả về của Gemini
+            const messageElement = incomingChatLi.querySelector("p");
+            if (data.candidates && data.candidates.length > 0) {
+                messageElement.textContent = data.candidates[0].content.parts[0].text;
+            } else {
+                messageElement.textContent = "Gemini không trả về kết quả hợp lệ.";
+                messageElement.classList.add("error");
+            }
         })
         .catch((error) => {
+            const messageElement = incomingChatLi.querySelector("p");
             messageElement.classList.add("error");
-            messageElement.textContent = "Oops! Something went wrong. Please try again!";
+            messageElement.textContent = "Lỗi kết nối hoặc API. Vui lòng thử lại!";
+            console.error(error);
         })
         .finally(() => chatbox.scrollTo(0, chatbox.scrollHeight));
 };
@@ -66,23 +62,24 @@ const handleChat = () => {
     chatbox.scrollTo(0, chatbox.scrollHeight);
 
     setTimeout(() => {
-        const incomingChatLi = createChatLi("Thinking...", "chat-incoming");
+        const incomingChatLi = createChatLi("Đang xử lý...", "chat-incoming");
         chatbox.appendChild(incomingChatLi);
         chatbox.scrollTo(0, chatbox.scrollHeight);
 
-        // Gọi API Gemini
         generateResponse(incomingChatLi);
-    }, 600); // Tùy chỉnh thời gian delay
-}
+    }, 600);
+
+    chatInput.value = "";
+};
 
 sendChatBtn.addEventListener("click", handleChat);
 
-// Hàm hủy chat
+// Hàm đóng cửa sổ chat
 function cancel() {
-    let chatbotcomplete = document.querySelector(".chatBot");
-    if (chatbotcomplete.style.display != 'none') {
+    const chatbotcomplete = document.querySelector(".chatBot");
+    if (chatbotcomplete.style.display !== 'none') {
         chatbotcomplete.style.display = "none";
-        let lastMsg = document.createElement("p");
+        const lastMsg = document.createElement("p");
         lastMsg.textContent = 'Thanks for using our Chatbot!';
         lastMsg.classList.add('lastMessage');
         document.body.appendChild(lastMsg);

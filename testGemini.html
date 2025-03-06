@@ -15,26 +15,22 @@
 
     <script>
         document.getElementById('testApiButton').addEventListener('click', function() {
-            // API Key và URL của Gemini
-            const API_KEY = 'AIzaSyDZeF5LtkwAeBrcMrD5tYeuws4KHh6UUYk';  // Thay bằng khóa API của bạn
-            const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + API_KEY;
+            const API_KEY = 'AIzaSyD6DHBC0MtBhLpvH8gW4sQvC-3dsmn9MPA'; // Thay bằng API key Gemini của bạn
+            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
             const requestOptions = {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${API_KEY}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: 'gemini-1.5-flash',  // Tên model của Gemini
-                    input: {
-                        messages: [
-                            {
-                                role: 'user',
-                                content: 'Xin chào, tôi cần kiểm tra API Gemini!'
-                            }
-                        ]
-                    }
+                    contents: [
+                        {
+                            parts: [
+                                { text: 'Xin chào, tôi cần kiểm tra API Gemini!' }
+                            ]
+                        }
+                    ]
                 })
             };
 
@@ -42,10 +38,15 @@
             fetch(API_URL, requestOptions)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('apiResponse').textContent = JSON.stringify(data, null, 2);
+                    if (data.candidates && data.candidates.length > 0) {
+                        document.getElementById('apiResponse').textContent = data.candidates[0].content.parts[0].text;
+                    } else {
+                        document.getElementById('apiResponse').textContent = "Gemini không trả về kết quả hợp lệ.";
+                    }
                 })
                 .catch(error => {
                     document.getElementById('apiResponse').textContent = `Lỗi: ${error.message}`;
+                    console.error(error);
                 });
         });
     </script>

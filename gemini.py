@@ -1,7 +1,7 @@
 from google import genai
 
 # Khởi tạo client với khóa API của bạn
-client = genai.Client(api_key="YOUR_API_KEY")
+client = genai.Client(api_key="AIzaSyD6DHBC0MtBhLpvH8gW4sQvC-3dsmn9MPA")
 
 # Chọn mô hình Gemini bạn muốn sử dụng
 model = "gemini-2.0-flash"
