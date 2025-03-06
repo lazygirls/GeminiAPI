@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Gemini API</title>
+</head>
+<body>
+    <h2>Kiểm Tra Gemini API</h2>
+    <button id="testApiButton">Kiểm Tra API</button>
+    <div id="responseContainer">
+        <h3>Phản hồi từ Gemini:</h3>
+        <pre id="apiResponse"></pre>
+    </div>
+
+    <script>
+        document.getElementById('testApiButton').addEventListener('click', function() {
+            // API Key và URL của Gemini
+            const API_KEY = 'AIzaSyDZeF5LtkwAeBrcMrD5tYeuws4KHh6UUYk';  // Thay bằng khóa API của bạn
+            const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + API_KEY;
+
+            const requestOptions = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: 'gemini-1.5-flash',  // Tên model của Gemini
+                    input: {
+                        messages: [
+                            {
+                                role: 'user',
+                                content: 'Xin chào, tôi cần kiểm tra API Gemini!'
+                            }
+                        ]
+                    }
+                })
+            };
+
+            // Gửi yêu cầu và hiển thị phản hồi
+            fetch(API_URL, requestOptions)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('apiResponse').textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    document.getElementById('apiResponse').textContent = `Lỗi: ${error.message}`;
+                });
+        });
+    </script>
+</body>
+</html>
